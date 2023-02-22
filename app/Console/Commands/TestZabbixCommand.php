@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
+use App\Services;
+use App\Services\HostService;
 
 class TestZabbixCommand extends Command
 {
@@ -54,25 +56,7 @@ class TestZabbixCommand extends Command
         });
 
 
-        /**
-         * Получить все шлюзы
-         */
-        $params = [];
-        $params = [
-            'groupids' => $hostgroups['GW']['id'], 'selectInventory' => ['macaddress_a'],
-            'output' => ['host']
-        ];
-        $hosts = collect($this->zabbix->hostGet($params))->map(function ($item) {
-            return [
-                'id'   => strtoupper($item->hostid),
-                'host'   => strtoupper($item->host),
-                'inventory' => $item->inventory,
-            ];
-        });
-
-        foreach ($hosts as $item) {
-            Redis::set('host:' . $item['inventory']->macaddress_a, $item['id']);
-        }
+        HostService::synchronize($hostgroups['GW']['id']);
 
         /**
          * Получить все устройства
@@ -92,6 +76,7 @@ class TestZabbixCommand extends Command
 
         foreach ($hosts as $item) {
             Redis::set('device:' . $item['host'], $item['id']);
+            //$res = Redis::get('device:' . $item['host']);
         }
 
         return Command::SUCCESS;

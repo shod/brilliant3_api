@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Services\RedisService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,12 +11,14 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Carbon;
 
 class ProcessEvent implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $message;
+    protected $message_origin;
 
     /**
      * Create a new job instance.
@@ -25,6 +28,7 @@ class ProcessEvent implements ShouldQueue
     public function __construct($message)
     {
         $this->message = json_decode($message, true);
+        $this->message_origin = $message;
     }
 
     /**
@@ -34,9 +38,10 @@ class ProcessEvent implements ShouldQueue
      */
     public function handle()
     {
-        echo '2';
-        //dd($this->message);
-        Redis::set('event:' . $this->message['device_id'], $this->message);
-        //Redis::set('navi:' . $this->message['device_id'], $this->message);
+        echo 'ProcessEvent' . PHP_EOL;
+        $date = Carbon::parse($this->message['time']);
+
+        $key = RedisService::keyEncode(RedisService::KEY_EVENT, [$this->message['device_mac'], $date->timestamp]);
+        Redis::set($key, $this->message_origin);
     }
 }

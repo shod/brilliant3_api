@@ -32,18 +32,17 @@ class TestMqttCommand extends Command
         /*
         {
         "type": "100",
-        "device_id": "0112233445566778899aabbccddeeff0",
-        "address": "24D7EBBB96A3",
+        "device_mac": "3485182548ca",
+        "gw_mac": "8c4b14164d1c",
         "rssi": "-69",
         "time": "2022-12-16 11:36:35.000"
         }
         */
+
         /** @var \PhpMqtt\Client\Contracts\MqttClient $mqtt */
         $mqtt = MQTT::connection();
-        //var_dump($mqtt);
         $mqtt->subscribe('Event/Navi/RSSI', function (string $topic, string $message) {
-            //echo sprintf('Received QoS level 1 message on topic [%s]: %s', $topic, $message);
-            echo '1';
+            //echo sprintf('Received QoS level 1 message on topic [%s]: %s', $topic, $message);            
             dispatch(new ProcessEvent($message));
         }, 1);
         $mqtt->loop(true);

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
+use App\Services\RedisService;
 
 class TestRedisCommand extends Command
 {
@@ -28,10 +29,50 @@ class TestRedisCommand extends Command
      */
     public function handle()
     {
+        $this->showHosts();
+        return Command::SUCCESS;
+        $this->showDevices();
+        $this->showEvents();
+        return Command::SUCCESS;
+    }
+    private function showDevices()
+    {
         //Redis::set('host:', '123');
         $res = Redis::keys('device:*');
+        $key = '';
+        $this->info('Divices List');
+        foreach ($res as $item) {
+            $key = RedisService::keyDecode($item);
+            $res = Redis::get($key);
+            $this->info($key . '=' . $res);
+        }
+        $this->info('---------------------------');
+    }
+    private function showEvents()
+    {
         $res = Redis::keys('event:*');
-        dd($res);
-        return Command::SUCCESS;
+        $key = '';
+        $this->info('Events');
+        foreach ($res as $item) {
+            $key = RedisService::keyDecode($item);
+            $res = Redis::get($key);
+            //$this->info($key . '=' . print_r($res, true));            
+            var_dump(json_decode($res));
+        }
+        $this->info('---------------------------');
+    }
+
+    private function showHosts()
+    {
+        $res = Redis::keys(RedisService::KEY_HOST . ':*');
+        $key = '';
+        $this->info('Hosts');
+        foreach ($res as $item) {
+            $key = RedisService::keyDecode($item);
+            $res = Redis::get($key);
+            //$this->info($key . '=' . print_r($res, true));            
+            var_dump(json_decode($res));
+        }
+        $this->info('---------------------------');
     }
 }
