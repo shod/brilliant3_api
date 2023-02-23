@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Redis;
+use App\Models\Device;
 
 class DeviceService
 {
@@ -45,7 +46,12 @@ class DeviceService
     });
 
     foreach ($hosts as $item) {
-      Redis::set('device:' . $item['host'], $item['id']);
+
+      $device = new Device();
+      $device->id = $item['id'];
+      $device->name = $item['host'];
+      $rkey = RedisService::keyEncode(RedisService::KEY_DEVICE, [$item['host']]);
+      Redis::set($rkey, json_encode($device));
     }
   }
 }

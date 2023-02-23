@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
 use App\Services\RedisService;
+use App\Models\Device;
 
 class TestRedisCommand extends Command
 {
@@ -40,11 +41,16 @@ class TestRedisCommand extends Command
         $res = Redis::keys('device:*');
         $key = '';
         $this->info('Divices List');
+        //$device = new Device();
         foreach ($res as $item) {
             $key = RedisService::keyDecode($item);
             $res = Redis::get($key);
             $this->info($key . '=' . $res);
-            var_dump(json_decode($res));
+            $device = new Device();
+            $device = json_decode($res);
+            //$device = collect($res);
+            //dd($device);
+            //echo ($device->name);
         }
         $this->info('---------------------------');
     }
