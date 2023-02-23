@@ -17,6 +17,16 @@ class HostService
     $zabbix = app('zabbix');
 
     $host_info = [];
+
+    /**
+     * Удвлить все хосты
+     */
+
+    $rkey = RedisService::keyEncode(RedisService::KEY_HOST, ['*']);
+    $hosts = Redis::keys($rkey);
+
+    RedisService::deleteKeys($hosts);
+
     /**
      * Получить все шлюзы
      */

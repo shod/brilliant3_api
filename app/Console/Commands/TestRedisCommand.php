@@ -30,7 +30,6 @@ class TestRedisCommand extends Command
     public function handle()
     {
         $this->showHosts();
-        return Command::SUCCESS;
         $this->showDevices();
         $this->showEvents();
         return Command::SUCCESS;
@@ -45,6 +44,7 @@ class TestRedisCommand extends Command
             $key = RedisService::keyDecode($item);
             $res = Redis::get($key);
             $this->info($key . '=' . $res);
+            var_dump(json_decode($res));
         }
         $this->info('---------------------------');
     }
@@ -56,8 +56,8 @@ class TestRedisCommand extends Command
         foreach ($res as $item) {
             $key = RedisService::keyDecode($item);
             $res = Redis::get($key);
-            //$this->info($key . '=' . print_r($res, true));            
-            var_dump(json_decode($res));
+            $this->info($key . '=' . print_r($res, true));
+            //var_dump(json_decode($res));
         }
         $this->info('---------------------------');
     }

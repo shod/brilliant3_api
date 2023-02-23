@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Redis;
 
 class RedisService
 {
@@ -20,5 +21,12 @@ class RedisService
   public static function keyEncode($event, $arr_key): string
   {
     return $event . ':' . implode(':', $arr_key);
+  }
+
+  public static function deleteKeys(array $keys)
+  {
+    foreach ($keys as $id => $key) {
+      Redis::del(RedisService::keyDecode($key));
+    }
   }
 }
