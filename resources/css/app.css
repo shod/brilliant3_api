@@ -1,0 +1,6 @@
+#mapCanvas{
+  background-image:    url(http://br3api.loc/images/map_main.png);
+  background-size:     cover;                      
+  background-repeat:   no-repeat;
+  background-position: center center;
+}
