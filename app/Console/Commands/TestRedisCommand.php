@@ -48,8 +48,6 @@ class TestRedisCommand extends Command
             $this->info($key . '=' . $res);
             $device = new Device();
             $device = json_decode($res);
-            //$device = collect($res);
-            //dd($device);
             //echo ($device->name);
         }
         $this->info('---------------------------');
@@ -76,8 +74,7 @@ class TestRedisCommand extends Command
         foreach ($res as $item) {
             $key = RedisService::keyDecode($item);
             $res = Redis::get($key);
-            //$this->info($key . '=' . print_r($res, true));            
-            var_dump(json_decode($res));
+            $this->info($key . '=' . print_r($res, true));
         }
         $this->info('---------------------------');
     }

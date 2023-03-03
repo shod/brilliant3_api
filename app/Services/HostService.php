@@ -9,6 +9,7 @@ class HostService
 
   public static function synchronize(int $groupids)
   {
+    echo 'Hosts' . PHP_EOL;
     /**
      * The ZabbixApi instance.
      *
@@ -19,7 +20,7 @@ class HostService
     $host_info = [];
 
     /**
-     * Удвлить все хосты
+     * Удалить все хосты
      */
 
     $rkey = RedisService::keyEncode(RedisService::KEY_HOST, ['*']);
@@ -45,6 +46,7 @@ class HostService
     });
 
     foreach ($hosts as $item) {
+      echo $item['name'] . PHP_EOL;
       $host_info[$item['name']] = [
         'name' => $item['name'],
         'id' => $item['id'],

@@ -13,6 +13,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Carbon;
 
+use App\Services\HelperService;
+
 class ProcessEvent implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -27,8 +29,8 @@ class ProcessEvent implements ShouldQueue
      */
     public function __construct($message)
     {
-        $this->message = json_decode($message, true);
-        $this->message_origin = $message;
+        $this->message = HelperService::EventStrToArray($message);
+        $this->message_origin = json_encode($this->message);
     }
 
     /**
@@ -38,10 +40,10 @@ class ProcessEvent implements ShouldQueue
      */
     public function handle()
     {
-        echo 'ProcessEvent' . PHP_EOL;
-        $date = Carbon::parse($this->message['time']);
-
-        $key = RedisService::keyEncode(RedisService::KEY_EVENT, [$this->message['device_mac'], $date->timestamp]);
+        echo ('ProcessEvent') . PHP_EOL;
+        $date = Carbon::parse($this->message['time']); //->getPreciseTimestamp(3);                
+        $key = RedisService::keyEncode(RedisService::KEY_EVENT, [$this->message['device_mac'], $this->message['gw_mac']]);
+        echo ('ProcessEvent = ' . $key) . PHP_EOL;
         Redis::set($key, $this->message_origin);
     }
 }

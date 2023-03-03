@@ -40,7 +40,7 @@ class DeviceService
     $hosts = collect($zabbix->hostGet($params))->map(function ($item) {
       return [
         'id'   => strtoupper($item->hostid),
-        'host'   => strtoupper($item->host),
+        'host'   => $item->host,
         'inventory' => $item->inventory,
       ];
     });
@@ -53,5 +53,21 @@ class DeviceService
       $rkey = RedisService::keyEncode(RedisService::KEY_DEVICE, [$item['host']]);
       Redis::set($rkey, json_encode($device));
     }
+  }
+
+  /**
+   * Расчет позиции устройства
+   */
+  public static function triangulation($device)
+  {
+    $rkey = RedisService::keyEncode(RedisService::KEY_EVENT, [$device->name, '*']);
+    $events = Redis::keys($rkey);
+
+    foreach ($events as $item) {
+      $key = RedisService::keyDecode($item);
+      $res = Redis::get($key);
+      echo ($key . '=' . print_r($res, true));
+    }
+    echo 'triangulation';
   }
 }

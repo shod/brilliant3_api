@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Redis;
+use App\Services\RedisService;
+
 /**
  * Класс для работы с конечными PTP устройствами
  */
@@ -25,5 +28,12 @@ class Device
     foreach ($data as $key => $value) {
       $this->{$key} = $value;
     }
+  }
+
+  public function find($deviceId)
+  {
+    $rkey = RedisService::keyEncode(RedisService::KEY_DEVICE, [$deviceId]);
+    $res = Redis::get($rkey);
+    dd($rkey . '=' . print_r($res, true));
   }
 }
