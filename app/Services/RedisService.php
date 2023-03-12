@@ -11,6 +11,7 @@ class RedisService
   const KEY_HOST = 'host';
   const KEY_DEVICE = 'device';
   const KEY_EVENT = 'event';
+  const KEY_POINT = 'point';
 
   public static function keyDecode($row_key): string
   {
@@ -20,6 +21,10 @@ class RedisService
 
   public static function keyEncode($event, $arr_key): string
   {
+    $arr_key = array_map(function ($item) {
+      return strtoupper($item);
+    }, $arr_key);
+
     return $event . ':' . implode(':', $arr_key);
   }
 

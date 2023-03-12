@@ -7,6 +7,7 @@ use App\Models\Device;
 
 class DeviceService
 {
+  public static $rssi_correct = 20;
   public static function synchronize(int $groupids)
   {
     /**
@@ -58,16 +59,73 @@ class DeviceService
   /**
    * Расчет позиции устройства
    */
-  public static function triangulation($device)
+  public static function triangulation(&$device)
   {
     $rkey = RedisService::keyEncode(RedisService::KEY_EVENT, [$device->name, '*']);
+
     $events = Redis::keys($rkey);
 
+    $points = [];
     foreach ($events as $item) {
       $key = RedisService::keyDecode($item);
-      $res = Redis::get($key);
-      echo ($key . '=' . print_r($res, true));
+      $event = json_decode(Redis::get($key));
+
+      $point = self::getPoint($event->gw_mac);
+
+      if (!empty($point->x)) {
+        $rssi = (abs($event->rssi) - 20) * 2;
+        $points[] = ['rssi' => $rssi, 'x' => $point->x, 'y' => $point->y]; //, 'x' => $point->x, 'y' => $point->y];
+      }
     }
-    echo 'triangulation';
+
+    $location = self::getLocation($points);
+    $device->location->x = round($location['x'], 4);
+    $device->location->y = round($location['y'], 4);
+  }
+
+  /**
+   * Получить Данные по устройству
+   */
+  private static function getPoint($key)
+  {
+    $rkey = RedisService::keyEncode(RedisService::KEY_POINT, [$key]);
+    return json_decode(Redis::get($rkey));
+  }
+
+  private static function getLocation2(array $arrPoints): array
+  {
+    $location = ['x' => 0, 'y' => 0];
+    $x_cos = 0;
+    $y_cos = 0;
+
+    $axis = [30, 45, 60];
+
+    $i = 0;
+    foreach ($arrPoints as $item) {
+      var_dump($item);
+      $x_cos = $x_cos + ($item['rssi'] * cos($axis[$i]));
+      $y_cos = $y_cos + ($item['rssi'] * cos($axis[$i]));
+      echo ($item['rssi'] * cos($axis[$i])) . PHP_EOL;
+      $i++;
+    }
+
+    dd($x_cos);
+    return $location;
+  }
+
+  /**
+   * Алгоритм трилетерации
+   */
+  private static function getLocation($arrPoints)
+  {
+    $a = 2 * $arrPoints[1]['x'] - 2 * $arrPoints[0]['x'];
+    $b = 2 * $arrPoints[1]['y'] - 2 * $arrPoints[0]['y'];
+    $c = pow($arrPoints[0]['rssi'], 2) - pow($arrPoints[1]['rssi'], 2) - pow($arrPoints[0]['x'], 2) + pow($arrPoints[1]['x'], 2) - pow($arrPoints[0]['y'], 2) + pow($arrPoints[1]['y'], 2);
+    $d = 2 * $arrPoints[2]['x'] - 2 * $arrPoints[1]['x'];
+    $e = 2 * $arrPoints[2]['y'] - 2 * $arrPoints[1]['y'];
+    $f = pow($arrPoints[1]['rssi'], 2) - pow($arrPoints[2]['rssi'], 2) - pow($arrPoints[1]['x'], 2) + pow($arrPoints[2]['x'], 2) - pow($arrPoints[1]['y'], 2) + pow($arrPoints[2]['y'], 2);
+    $x = ($c * $e - $f * $b) / ($e * $a - $b * $d);
+    $y = ($c * $d - $a * $f) / ($b * $d - $a * $e);
+    return ['x' => $x, 'y' => $y];
   }
 }

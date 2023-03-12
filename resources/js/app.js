@@ -12,7 +12,7 @@ let app;
 let player;
 
 
-const Devices = [1,2,3];
+const Devices = ['3485182548CA'];
 let device = [];
 
 //const response_data = '[{"id": 1, "x": 300, "y": 530}, {"id": 3, "x": 300, "y": 400}]';
@@ -21,7 +21,7 @@ var data = [];
 
 async function get_data(deviceId){
   console.info(deviceId);
-  const f = await fetch('http://br3api.loc/api/data/ptps/'+deviceId);        
+  const f = await fetch(base_url+'/api/data/ptps/'+deviceId);        
   const res = await f.json();  
   
   data = res.data;  
@@ -54,36 +54,33 @@ window.onload = async function(){
     // This creates a texture 
     device[element.id] = new PIXI.Sprite(device_texture);
     device[element.id].anchor.set(0.5);
-    device[element.id].x = (app.renderer.width / 2) + element*100;
-    device[element.id].y = (app.renderer.height / 2) + element*50;
+    device[element.id].x = (app.renderer.width / 2);
+    device[element.id].y = (app.renderer.height / 2);
     app.stage.addChild(device[element.id]);
   });
   
-  
 
   console.log(data)
-  data.forEach(obj => {    
-    console.log(`${obj.id} ${obj.x} ${obj.y}`);    
-    console.log('-------------------');
-  });
+  
   // Listen for frame updates
-  app.ticker.add(() => {
-    // each frame we spin the bunny around a bit
-    //divice_1.rotation += 0.01;
+  app.ticker.add(() => {    
 
-    if(data)
-    data.forEach(obj => {
-      device[obj.id].x = obj.x;
-      device[obj.id].y = obj.y;      
-    });
-    data = ""    
-    device[deviceId].x += 0.1;
+    if(data){
+      data.forEach(obj => {    
+        console.log(`${obj.id} ${obj.x} ${obj.y}`);    
+        console.log('-------------------');
+      });
+      data.forEach(obj => {
+        device[obj.id].x = obj.x;
+        device[obj.id].y = obj.y;      
+      });
+      data = ""
+    }    
+    //device[deviceId].x += 0.05;
   },1000);
 
-    setInterval(async() => {        
-      //'[{"id": 2, "x": 200, "y": 520}]'
-      //const f = await fetch(`http://br3api.loc/api/data/ptps/1`+currentTicker.name+`&tsyms=USD&api_key=41669f420507419a35b289ef1b5ec0fa203d303fd467c6ff464e8b5c36efcc6c`)
+    setInterval(async() => {              
       get_data(deviceId);
-    }, 5000);
+    }, 3000);
 }
 

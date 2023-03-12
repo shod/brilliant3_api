@@ -14,4 +14,8 @@ use App\Http\Controllers\MapController;
 |
 */
 
+Route::prefix('map')->group(function () {
+  Route::get('/{device_id}', [MapController::class, 'index']);
+});
+
 Route::get('/', [MapController::class, 'index']);

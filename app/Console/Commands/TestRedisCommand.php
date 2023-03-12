@@ -14,7 +14,7 @@ class TestRedisCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'test:redis';
+    protected $signature = 'test:redis {keyword}';
 
     /**
      * The console command description.
@@ -30,9 +30,16 @@ class TestRedisCommand extends Command
      */
     public function handle()
     {
-        $this->showHosts();
-        $this->showDevices();
-        $this->showEvents();
+        $keyword = $this->argument('keyword');
+
+        if ($keyword == 'device') {
+            $this->showDevices();
+        } else {
+            $this->showHosts();
+            $this->showPoints();
+            $this->showDevices();
+            $this->showEvents();
+        }
         return Command::SUCCESS;
     }
     private function showDevices()
@@ -71,6 +78,19 @@ class TestRedisCommand extends Command
         $res = Redis::keys(RedisService::KEY_HOST . ':*');
         $key = '';
         $this->info('Hosts');
+        foreach ($res as $item) {
+            $key = RedisService::keyDecode($item);
+            $res = Redis::get($key);
+            $this->info($key . '=' . print_r($res, true));
+        }
+        $this->info('---------------------------');
+    }
+
+    private function showPoints()
+    {
+        $res = Redis::keys(RedisService::KEY_POINT . ':*');
+        $key = '';
+        $this->info('Points');
         foreach ($res as $item) {
             $key = RedisService::keyDecode($item);
             $res = Redis::get($key);

@@ -3,6 +3,9 @@
 namespace App\Repositories;
 
 use App\Interfaces\PtpRepositoryInterface;
+use Illuminate\Support\Facades\Redis;
+use App\Services\RedisService;
+use App\Models\Device;
 
 class PtpRepository implements PtpRepositoryInterface
 {
@@ -12,6 +15,10 @@ class PtpRepository implements PtpRepositoryInterface
   }
   public function getPtpById($ptpId): array
   {
-    return [['id' => $ptpId, 'x' => 200, 'y' => 500]];
+    $key = RedisService::keyEncode(RedisService::KEY_DEVICE, [$ptpId]);
+    $res = Redis::get($key);
+    $device = json_decode($res);
+
+    return [['id' => $ptpId, 'x' => round($device->location->x), 'y' => round($device->location->y)]];
   }
 }

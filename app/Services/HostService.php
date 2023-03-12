@@ -18,12 +18,22 @@ class HostService
     $zabbix = app('zabbix');
 
     $host_info = [];
+    $host_point = [];
 
     /**
      * Удалить все хосты
      */
 
     $rkey = RedisService::keyEncode(RedisService::KEY_HOST, ['*']);
+    $hosts = Redis::keys($rkey);
+
+    RedisService::deleteKeys($hosts);
+
+    /**
+     * Удалить все points
+     */
+
+    $rkey = RedisService::keyEncode(RedisService::KEY_POINT, ['*']);
     $hosts = Redis::keys($rkey);
 
     RedisService::deleteKeys($hosts);
@@ -52,6 +62,12 @@ class HostService
         'id' => $item['id'],
         'macaddress_a' => $item['inventory']->macaddress_a
       ];
+
+      //$host_point[$item['inventory']->macaddress_a] = ['x' => 0, 'y' => 0];
+
+      // Save the host info
+      $key = RedisService::keyEncode(RedisService::KEY_HOST, [$item['name']]);
+      Redis::set($key, json_encode($host_info[$item['name']]));
     }
 
     /**
@@ -73,17 +89,14 @@ class HostService
     foreach ($hosts[0]['selements'] as $item) {
 
       if (array_key_exists($item->label, $host_info)) {
-        $host_data = array_merge(
-          $host_info[$item->label],
-          [
-            'x' => $item->x,
-            'y' => $item->y,
-          ]
-        );
+        /** 
+         * Записать координат        
+         */
 
-        $key = RedisService::keyEncode(RedisService::KEY_HOST, [$item->label]);
-
-        Redis::set($key, json_encode($host_data));
+        $key_mac = $host_info[$item->label]['macaddress_a'];
+        $host_point = ['x' => $item->x, 'y' => $item->y];
+        $key = RedisService::keyEncode(RedisService::KEY_POINT, [$key_mac]);
+        Redis::set($key, json_encode($host_point));
       }
     }
   }

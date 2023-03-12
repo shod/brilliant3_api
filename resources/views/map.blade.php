@@ -11,9 +11,10 @@
 
 <body>  
   <script>
+    const base_url = "{{ $base_url }}"
     const map_image_path = "{{ $map_image_path }}"
     const device_image_path = "{{ $device_image_path }}"    
-    const deviceId = {{$device_id}}
+    const deviceId = "{{$device_id}}"
   </script>
   <data_ptp data="{{ $data }}"></data_ptp>
   <div id="app"></div>

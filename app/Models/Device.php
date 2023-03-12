@@ -13,14 +13,14 @@ class Device
 
   public int $id;
   public string $name;
-  public array $coordinate;
+  public array $location;
 
   //?int $id, ?string $name
   public function __construct()
   {
     $this->id = 0;
     $this->name = '';
-    $this->coordinate = ['x' => 0, 'y' => 0];
+    $this->location = ['x' => 0, 'y' => 0];
   }
 
   public function set($data)

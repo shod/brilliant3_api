@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Carbon;
 
 use App\Services\HelperService;
+use App\Services\DeviceService;
 
 class ProcessEvent implements ShouldQueue
 {
@@ -43,7 +44,20 @@ class ProcessEvent implements ShouldQueue
         echo ('ProcessEvent') . PHP_EOL;
         $date = Carbon::parse($this->message['time']); //->getPreciseTimestamp(3);                
         $key = RedisService::keyEncode(RedisService::KEY_EVENT, [$this->message['device_mac'], $this->message['gw_mac']]);
-        echo ('ProcessEvent = ' . $key) . PHP_EOL;
+        echo ('ProcessEvent = ' . $key . ', $deviceId=' . $this->message['device_mac']) . PHP_EOL;
         Redis::set($key, $this->message_origin);
+        $this->triangle($this->message['device_mac']);
+    }
+
+    private function triangle($deviceId)
+    {
+        $key = RedisService::keyEncode(RedisService::KEY_DEVICE, [$deviceId]);
+        $res = Redis::get($key);
+
+        //$device = new Device();
+        $device = json_decode($res);
+        DeviceService::triangulation($device);
+        echo ($device->location->x . ',' . $device->location->y);
+        $res = Redis::set($key, json_encode($device));
     }
 }

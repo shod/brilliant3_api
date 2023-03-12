@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Repositories\PtpRepository;
+use Illuminate\Support\Facades\App;
 
 class MapController extends Controller
 {
@@ -20,12 +21,29 @@ class MapController extends Controller
      */
     public function index(): View
     {
-        $device_id = 1;
+        $device_id = '3485182548CA';
         $data = $this->ptp_repository->getPtpById($device_id);
 
         return view('map', [
-            'map_image_path' => 'images/map_main.png',
-            'device_image_path' => 'images/devices/device_1.png',
+            'base_url' => env('APP_URL'),
+            'map_image_path' => '././images/map_main.png',
+            'device_image_path' => '././images/devices/device_1.png',
+            'data'  => json_encode($data),
+            'device_id' => $device_id,
+        ]);
+    }
+
+    /**
+     * Show the profile for a given user.
+     */
+    public function showPtp($device_id): View
+    {
+        //$device_id = '3485182548CA';
+        $data = $this->ptp_repository->getPtpById($device_id);
+
+        return view('map', [
+            'map_image_path' => '../images/map_main.png',
+            'device_image_path' => '../images/devices/device_1.png',
             'data'  => json_encode($data),
             'device_id' => $device_id,
         ]);

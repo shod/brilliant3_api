@@ -10,4 +10,9 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        hmr: {
+            //host: '8d19-109-241-182-85.ngrok.io',
+        },
+    }
 });
