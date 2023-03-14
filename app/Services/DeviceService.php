@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Redis;
 use App\Models\Device;
+use Illuminate\Support\Arr;
 
 class DeviceService
 {
@@ -59,28 +60,49 @@ class DeviceService
   /**
    * Расчет позиции устройства
    */
-  public static function triangulation(&$device)
+  public static function triangulation(&$device, $debug = false)
   {
+    /* 
+    * @TODO:сделать через конфиг
+    *Получаем дату менше 10 минут от текущей
+    */
+    date_default_timezone_set('Europe/Minsk');
+    $min_period = time() - 600;
     $rkey = RedisService::keyEncode(RedisService::KEY_EVENT, [$device->name, '*']);
 
     $events = Redis::keys($rkey);
 
     $points = [];
     foreach ($events as $item) {
+
       $key = RedisService::keyDecode($item);
       $event = json_decode(Redis::get($key));
-
       $point = self::getPoint($event->gw_mac);
 
-      if (!empty($point->x)) {
-        $rssi = (abs($event->rssi) - 20) * 2;
-        $points[] = ['rssi' => $rssi, 'x' => $point->x, 'y' => $point->y]; //, 'x' => $point->x, 'y' => $point->y];
+      if (!empty($point->x) && strtotime($event->time) > $min_period) {
+        //$rssi = abs($event->rssi);
+        $rssi = abs($event->rssi) * 0.35;
+        $points[] = ['name' => $point->name, 'rssi' => $rssi, 'x' => $point->x, 'y' => $point->y, 'time' => strtotime($event->time)]; //, 'x' => $point->x, 'y' => $point->y];
       }
     }
 
-    $location = self::getLocation($points);
-    $device->location->x = round($location['x'], 4);
-    $device->location->y = round($location['y'], 4);
+    $sorted = array_values(Arr::sort($points, function ($value) {
+      return $value['rssi'];
+    }));
+
+    $points = array_slice($sorted, -3);
+    //$points = array_slice($sorted, 3);
+
+    if (count($points) == 3) {
+      $location = self::getLocation($points);
+      $device->location->x = round($location['x'], 4);
+      $device->location->y = round($location['y'], 4);
+    }
+
+    if ($debug) {
+      var_dump($points);
+      dd($device);
+    }
   }
 
   /**

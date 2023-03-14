@@ -12,19 +12,18 @@ let app;
 let player;
 
 
-const Devices = ['3485182548CA'];
+const Devices = ['34851825C972'];
 let device = [];
 
-//const response_data = '[{"id": 1, "x": 300, "y": 530}, {"id": 3, "x": 300, "y": 400}]';
+const default_data = '[{"id": 1, "x": 0, "y": 0}]';
 //var data = JSON.parse(response_data);
 var data = [];
 
-async function get_data(deviceId){
-  console.info(deviceId);
-  const f = await fetch(base_url+'/api/data/ptps/'+deviceId);        
-  const res = await f.json();  
-  
-  data = res.data;  
+async function get_data(deviceId){    
+  // const f = await fetch(base_url+'/api/data/ptps/'+deviceId);        
+  // const res = await f.json();    
+  // data = res.data;  
+  data = localStorage.getItem('data_ptp') ? JSON.parse(localStorage.getItem('data_ptp')) : default_data;  
 }
 
 get_data(deviceId);
@@ -32,8 +31,10 @@ get_data(deviceId);
 window.onload = async function(){  
   app = new PIXI.Application(
     {
-      width: 1143,
-      height: 602,      
+      //width: 1143,
+      //height: 602,      
+      width: 2300,
+      height: 2402,      
       backgroundColor: '#FFFFFF',      
     }
   );
@@ -48,8 +49,7 @@ window.onload = async function(){
     // load the texture we need
   const device_texture = await PIXI.Assets.load(device_image_path);
 
-  data.forEach(element => {
-    console.log('element');
+  data.forEach(element => {    
     console.log(element);
     // This creates a texture 
     device[element.id] = new PIXI.Sprite(device_texture);
@@ -59,17 +59,13 @@ window.onload = async function(){
     app.stage.addChild(device[element.id]);
   });
   
-
-  console.log(data)
-  
   // Listen for frame updates
-  app.ticker.add(() => {    
-
+  app.ticker.add(() => {        
     if(data){
-      data.forEach(obj => {    
-        console.log(`${obj.id} ${obj.x} ${obj.y}`);    
-        console.log('-------------------');
-      });
+      // data.forEach(obj => {    
+      //   console.log(`${obj.id} ${obj.x} ${obj.y}`);    
+      //   console.log('-------------------');
+      // });
       data.forEach(obj => {
         device[obj.id].x = obj.x;
         device[obj.id].y = obj.y;      

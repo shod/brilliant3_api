@@ -92,9 +92,8 @@ class HostService
         /** 
          * Записать координат        
          */
-
         $key_mac = $host_info[$item->label]['macaddress_a'];
-        $host_point = ['x' => $item->x, 'y' => $item->y];
+        $host_point = ['name' => $host_info[$item->label]['name'], 'x' => $item->x, 'y' => $item->y];
         $key = RedisService::keyEncode(RedisService::KEY_POINT, [$key_mac]);
         Redis::set($key, json_encode($host_point));
       }
