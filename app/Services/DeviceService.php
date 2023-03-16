@@ -80,9 +80,8 @@ class DeviceService
       $point = self::getPoint($event->gw_mac);
 
       if (!empty($point->x) && strtotime($event->time) > $min_period) {
-        //$rssi = abs($event->rssi);
-        $rssi = abs($event->rssi) * 0.35;
-        $points[] = ['name' => $point->name, 'rssi' => $rssi, 'x' => $point->x, 'y' => $point->y, 'time' => strtotime($event->time)]; //, 'x' => $point->x, 'y' => $point->y];
+        $rssi = round(abs($event->rssi));
+        $points[] = ['name' => $point->name, 'rssi' => $rssi, 'radius' => round($rssi * 3), 'x' => $point->x, 'y' => $point->y, 'time' => strtotime($event->time)]; //, 'x' => $point->x, 'y' => $point->y];
       }
     }
 
@@ -90,18 +89,18 @@ class DeviceService
       return $value['rssi'];
     }));
 
-    $points = array_slice($sorted, -3);
-    //$points = array_slice($sorted, 3);
+    $points = array_slice($sorted, 0, 3);
 
     if (count($points) == 3) {
       $location = self::getLocation($points);
       $device->location->x = round($location['x'], 4);
       $device->location->y = round($location['y'], 4);
+      $device->points = $points;
     }
 
     if ($debug) {
-      var_dump($points);
-      dd($device);
+      //var_dump($points);
+      var_dump($device);
     }
   }
 
@@ -142,10 +141,10 @@ class DeviceService
   {
     $a = 2 * $arrPoints[1]['x'] - 2 * $arrPoints[0]['x'];
     $b = 2 * $arrPoints[1]['y'] - 2 * $arrPoints[0]['y'];
-    $c = pow($arrPoints[0]['rssi'], 2) - pow($arrPoints[1]['rssi'], 2) - pow($arrPoints[0]['x'], 2) + pow($arrPoints[1]['x'], 2) - pow($arrPoints[0]['y'], 2) + pow($arrPoints[1]['y'], 2);
+    $c = pow($arrPoints[0]['radius'], 2) - pow($arrPoints[1]['radius'], 2) - pow($arrPoints[0]['x'], 2) + pow($arrPoints[1]['x'], 2) - pow($arrPoints[0]['y'], 2) + pow($arrPoints[1]['y'], 2);
     $d = 2 * $arrPoints[2]['x'] - 2 * $arrPoints[1]['x'];
     $e = 2 * $arrPoints[2]['y'] - 2 * $arrPoints[1]['y'];
-    $f = pow($arrPoints[1]['rssi'], 2) - pow($arrPoints[2]['rssi'], 2) - pow($arrPoints[1]['x'], 2) + pow($arrPoints[2]['x'], 2) - pow($arrPoints[1]['y'], 2) + pow($arrPoints[2]['y'], 2);
+    $f = pow($arrPoints[1]['radius'], 2) - pow($arrPoints[2]['radius'], 2) - pow($arrPoints[1]['x'], 2) + pow($arrPoints[2]['x'], 2) - pow($arrPoints[1]['y'], 2) + pow($arrPoints[2]['y'], 2);
     $x = ($c * $e - $f * $b) / ($e * $a - $b * $d);
     $y = ($c * $d - $a * $f) / ($b * $d - $a * $e);
     return ['x' => $x, 'y' => $y];

@@ -19,7 +19,21 @@
   <data_ptp data="{{ $data }}"></data_ptp>
   <div id="app"></div>
     @vite('resources/js/app.js')
+
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+      #app {        
+        text-align: left;  
+        /*background-image: url("http://br3api.loc/images/map_main.png");*/        
+
+        /* Center and scale the image nicely */
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+      </style> 
 </body>
-
-
 </html>

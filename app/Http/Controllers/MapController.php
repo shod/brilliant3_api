@@ -27,7 +27,7 @@ class MapController extends Controller
         return view('map', [
             'base_url' => env('APP_URL'),
             'map_image_path' => '././images/map_main.png',
-            'device_image_path' => '././images/devices/device_1.png',
+            'device_image_path' => '././images/devices/device_1.png?v=1',
             'data'  => json_encode($data),
             'device_id' => $device_id,
         ]);

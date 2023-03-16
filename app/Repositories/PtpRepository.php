@@ -19,6 +19,6 @@ class PtpRepository implements PtpRepositoryInterface
     $res = Redis::get($key);
     $device = json_decode($res);
 
-    return [['id' => $ptpId, 'x' => round($device->location->x), 'y' => round($device->location->y)]];
+    return [['id' => $ptpId, 'x' => round($device->location->x), 'y' => round($device->location->y), 'points' => $device->points]];
   }
 }
