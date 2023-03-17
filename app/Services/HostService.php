@@ -43,7 +43,7 @@ class HostService
      */
     $params = [];
     $params = [
-      'groupids' => $groupids, 'selectInventory' => ['macaddress_a'],
+      'groupids' => $groupids, 'selectInventory' => ['macaddress_a', 'tag'],
       'output' => ['name', 'host']
     ];
     $hosts = collect($zabbix->hostGet($params))->map(function ($item) {
@@ -60,7 +60,8 @@ class HostService
       $host_info[$item['name']] = [
         'name' => $item['name'],
         'id' => $item['id'],
-        'macaddress_a' => $item['inventory']->macaddress_a
+        'macaddress_a' => $item['inventory']->macaddress_a,
+        'tag' => ($item['inventory']->tag == '') ? 1 : $item['inventory']->tag,
       ];
 
       //$host_point[$item['inventory']->macaddress_a] = ['x' => 0, 'y' => 0];
@@ -93,7 +94,7 @@ class HostService
          * Записать координат        
          */
         $key_mac = $host_info[$item->label]['macaddress_a'];
-        $host_point = ['name' => $host_info[$item->label]['name'], 'x' => $item->x, 'y' => $item->y];
+        $host_point = ['name' => $host_info[$item->label]['name'], 'x' => $item->x, 'y' => $item->y, 'rssi_ratio' => $host_info[$item->label]['tag']];
         $key = RedisService::keyEncode(RedisService::KEY_POINT, [$key_mac]);
         Redis::set($key, json_encode($host_point));
       }

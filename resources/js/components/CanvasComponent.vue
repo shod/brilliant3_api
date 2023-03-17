@@ -46,28 +46,29 @@ export default {
     
     this.get_data(deviceId);
     this.draw_device();
-    this.gw_move();
+    //this.gw_move();
     
     /**
      * Перемещение устройств
      */
-    setInterval(async() => {                           
-      if(this.data){        
-        this.data.forEach(element => {                      
-          if(this.device[element.id]){    
-            const {x,  y} = this.get_coordinate(element.x, element.y);                  
-            this.device[element.id].x = x;
-            this.device[element.id].y = y;                           
-          }
-        });
-      }
-    }, 2000);
+    // setInterval(async() => {                           
+    //   if(this.data){        
+    //     this.data.forEach(element => {                      
+    //       if(this.device[element.id]){    
+    //         const {x,  y} = this.get_coordinate(element.x, element.y);                  
+    //         this.device[element.id].x = x;
+    //         this.device[element.id].y = y;                           
+    //       }
+    //     });
+    //   }
+    // }, 3000);
     
     /* Получение данных */
     setInterval(() => {             
       this.get_data(deviceId);
       this.gw_move();
-      }, 10000);
+      this.move_device();
+      }, 6000);
     
   },
 
@@ -112,18 +113,67 @@ export default {
       }
     },
 
+    move_device(){
+      if(this.data){        
+        this.data.forEach(element => {                      
+          if(this.device[element.id]){    
+            const {x,  y} = this.get_coordinate(element.x, element.y);                  
+            this.device[element.id].x = x;
+            this.device[element.id].y = y;                           
+          }
+        });
+      }
+    },
+
+    add_text(text){
+      // Создаем новый объект текста
+      const pixi_text = new PIXI.Text(text, {
+          fontFamily: 'Arial',
+          fontSize: 36,
+          fill: 0xff0000,
+          align: 'center'
+      });
+      return pixi_text;
+    },
+
     /** Рисуем хосты */
-    draw_gw(){    
-      console.log('draw_gw');     
+    draw_gw_one(index, x, y, radius, text){    
+      console.log('draw_gw:' + x + ',' + y);     
+      const colors = ['0xff00000', '0x00ff00', '0x626262'];
+      
+        this.destroy_gw(this.gw[index]);        
+
+        this.gw[index] = new PIXI.Graphics();                      
+        //this.app.stage.addChild(this.gw[index]);
+        
+        this.gw[index].beginFill(colors[index]);
+        this.gw[index].drawCircle(0, 0, (20-index * 5));
+        this.gw[index].endFill();     
+
+        this.gw[index].lineStyle(3, colors[index])                
+        this.gw[index].drawCircle(0, 0, radius);  
+                
+    },
+
+
+    destroy_gw(gw_spite){
+      // Удаляем спрайт со сцены
+      this.app.stage.removeChild(gw_spite);
+
+      // Уничтожаем спрайт
+      gw_spite.destroy();
+    },
+
+    /** Рисуем хосты */
+    draw_gw(){           
       const colors = ['0xff00000', '0x00ff00', '0x626262'];
       for (let index = 0; index < 3; index++) {
         this.gw[index] = new PIXI.Graphics();                      
-        this.app.stage.addChild(this.gw[index]);
-
-        //this.gw[index].lineStyle(3, colors[index], 1)        
+        //this.app.stage.addChild(this.gw[index]);
+        
         this.gw[index].beginFill(colors[index]);
-        this.gw[index].drawCircle(100, 100, (20-index * 5));
-        this.gw[index].endFill();        
+        this.gw[index].drawCircle(0, 0, (20-index * 5));
+        this.gw[index].endFill();             
         
       }
       
@@ -131,11 +181,10 @@ export default {
 
     gw_move(){    
       console.log('gw_move');  
-      if(this.data[0].points.length == 0){
-        console.log('gw_move-return'); 
+      if(this.data[0].points.length == 0){        
         return;
       }
-      console.log('gw_move-1');  
+      
       let gw_point = []; 
       for (let index = 0; index < 3; index++) {
         
@@ -143,8 +192,12 @@ export default {
         console.log(gw_point);
         const {x,  y} = this.get_coordinate(gw_point.x, gw_point.y);
         
+        this.draw_gw_one(index, x, y, gw_point.radius)
+
         this.gw[index].x = x;        
-        this.gw[index].y = y;                
+        this.gw[index].y = y;     
+        
+        this.app.stage.addChild(this.gw[index]);
         //this.gw[index].drawCircle(100, 100, 10);
         //this.gw[index].radius = gw_point.radius * 10;      
       }

@@ -80,14 +80,18 @@ class DeviceService
       $point = self::getPoint($event->gw_mac);
 
       if (!empty($point->x) && strtotime($event->time) > $min_period) {
-        $rssi = round(abs($event->rssi));
-        $points[] = ['name' => $point->name, 'rssi' => $rssi, 'radius' => round($rssi * 3), 'x' => $point->x, 'y' => $point->y, 'time' => strtotime($event->time)]; //, 'x' => $point->x, 'y' => $point->y];
+        $rssi = round(abs($event->rssi) * $point->rssi_ratio);
+        $points[] = ['name' => $point->name, 'rssi' => $rssi, 'radius' => round($rssi * 2.2), 'x' => $point->x, 'y' => $point->y, 'time' => strtotime($event->time)]; //, 'x' => $point->x, 'y' => $point->y];
       }
     }
 
     $sorted = array_values(Arr::sort($points, function ($value) {
       return $value['rssi'];
     }));
+
+    if ($debug) {
+      var_dump($sorted);
+    }
 
     $points = array_slice($sorted, 0, 3);
 
@@ -100,7 +104,7 @@ class DeviceService
 
     if ($debug) {
       //var_dump($points);
-      var_dump($device);
+      //var_dump($device);
     }
   }
 

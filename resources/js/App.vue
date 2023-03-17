@@ -1,10 +1,16 @@
-<template>
-    <div id="devices_list" class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap">
+<template>    
+  <div id="app_canvas"  @mousemove="pmove" > <CanvasComponent :correct_coordinate=correct_coordinate /> </div>  
+  <div id="devices_list" class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap">
       <span class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
         <div v-if="device[0]">Координаты устройства: {{device[0].id}} (X:{{device[0].x}}, Y:{{device[0].y}})</div>
         <div v-if="mouse_point">Координаты мыши: (X:{{mouse_point.x}}, Y:{{mouse_point.y}})</div>
-      </span>
-    <div id="app_canvas"  @mousemove="pmove" > <CanvasComponent :correct_coordinate=correct_coordinate /> </div>
+      </span>    
+  </div>
+  <div id="devices_list" class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap">
+      <div v-if="device[0]">Координаты шлюзов:</div>
+      <span class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">        
+        <div v-if="this.data[0]">(X:{{mouse_point.x}}, Y:{{mouse_point.y}})</div>
+      </span>    
   </div>
 </template>
 
@@ -21,7 +27,7 @@ export default {
       device: [],  
       data:[],
       mouse_point: {'x':0, 'y':0},   
-      correct_coordinate: {'x': -75, 'y': -85},      
+      correct_coordinate: {'x': 30, 'y': 20},      
     };
   },
   mounted() {   
