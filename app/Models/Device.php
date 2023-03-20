@@ -15,6 +15,7 @@ class Device
   public string $name;
   public array $location;
   public array $points;
+  public array $history;
 
   //?int $id, ?string $name
   public function __construct()
@@ -23,6 +24,7 @@ class Device
     $this->name = '';
     $this->location = ['x' => 0, 'y' => 0];
     $this->points = [];
+    $this->history = ['x' => [], 'y' => []];
   }
 
   public function set($data)

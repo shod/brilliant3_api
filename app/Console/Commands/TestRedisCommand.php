@@ -39,6 +39,7 @@ class TestRedisCommand extends Command
             $this->showPoints();
             $this->showDevices();
             $this->showEvents();
+            $this->showEventsHistory();
         }
         return Command::SUCCESS;
     }
@@ -59,11 +60,26 @@ class TestRedisCommand extends Command
         }
         $this->info('---------------------------');
     }
+
     private function showEvents()
     {
         $res = Redis::keys('event:*');
         $key = '';
         $this->info('Events');
+        foreach ($res as $item) {
+            $key = RedisService::keyDecode($item);
+            $res = Redis::get($key);
+            $this->info($key . '=' . print_r($res, true));
+            //var_dump(json_decode($res));
+        }
+        $this->info('---------------------------');
+    }
+
+    private function showEventsHistory()
+    {
+        $res = Redis::keys('event_history:*');
+        $key = '';
+        $this->info('EventsHistory');
         foreach ($res as $item) {
             $key = RedisService::keyDecode($item);
             $res = Redis::get($key);

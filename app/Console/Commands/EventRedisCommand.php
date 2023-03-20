@@ -59,6 +59,6 @@ class EventRedisCommand extends Command
         $device = json_decode($res);
         DeviceService::triangulation($device, true);
         $res = Redis::set($key, json_encode($device));
-        dd($device);
+        //dd($device);
     }
 }

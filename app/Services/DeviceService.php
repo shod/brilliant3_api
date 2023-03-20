@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Redis;
 use App\Models\Device;
 use Illuminate\Support\Arr;
+use App\Services\HelperService;
 
 class DeviceService
 {
@@ -90,22 +91,59 @@ class DeviceService
     }));
 
     if ($debug) {
-      var_dump($sorted);
+      //var_dump($sorted);
     }
 
     $points = array_slice($sorted, 0, 3);
 
     if (count($points) == 3) {
       $location = self::getLocation($points);
-      $device->location->x = round($location['x'], 4);
-      $device->location->y = round($location['y'], 4);
+      $device->location->x = round($location['x']);
+      $device->location->y = round($location['y']);
       $device->points = $points;
+      self::historyLocationSave($device);
     }
 
     if ($debug) {
+
       //var_dump($points);
       //var_dump($device);
+      /**
+       * Фильтрация координат
+       */
+      //HelperService::FilterDevicePoints($device);
+      //var_dump($device);
     }
+  }
+
+  /**
+   * Сохраняем историю координат
+   */
+  private static function historyLocationSave(&$device)
+  {
+    $max_element = 5;
+    $location = $device->location;
+    $history = $device->history;
+
+    $arr_x = $history->x;
+    $arr_y = $history->y;
+
+    if (isset($arr_x[0]) && $arr_x[0] != $location->x) {
+      array_unshift($arr_x, $location->x);
+    } else {
+      $arr_x[] = $location->x;
+    }
+
+    if (isset($arr_y[0]) && $arr_y[0] != $location->y) {
+      array_unshift($arr_y, $location->y);
+    } else {
+      $arr_y[] = $location->y;
+    }
+
+    $arr_x = array_slice($arr_x, 0, $max_element);
+    $arr_y = array_slice($arr_y, 0, $max_element);
+
+    $device->history = ['x' => $arr_x, 'y' => $arr_y];
   }
 
   /**
@@ -115,27 +153,6 @@ class DeviceService
   {
     $rkey = RedisService::keyEncode(RedisService::KEY_POINT, [$key]);
     return json_decode(Redis::get($rkey));
-  }
-
-  private static function getLocation2(array $arrPoints): array
-  {
-    $location = ['x' => 0, 'y' => 0];
-    $x_cos = 0;
-    $y_cos = 0;
-
-    $axis = [30, 45, 60];
-
-    $i = 0;
-    foreach ($arrPoints as $item) {
-      var_dump($item);
-      $x_cos = $x_cos + ($item['rssi'] * cos($axis[$i]));
-      $y_cos = $y_cos + ($item['rssi'] * cos($axis[$i]));
-      echo ($item['rssi'] * cos($axis[$i])) . PHP_EOL;
-      $i++;
-    }
-
-    dd($x_cos);
-    return $location;
   }
 
   /**
@@ -153,4 +170,4 @@ class DeviceService
     $y = ($c * $d - $a * $f) / ($b * $d - $a * $e);
     return ['x' => $x, 'y' => $y];
   }
-}
+};

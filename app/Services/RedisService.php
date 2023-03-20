@@ -11,6 +11,7 @@ class RedisService
   const KEY_HOST = 'host';
   const KEY_DEVICE = 'device';
   const KEY_EVENT = 'event';
+  const KEY_EVENT_HISTORY = 'event_history';
   const KEY_POINT = 'point';
 
   public static function keyDecode($row_key): string
