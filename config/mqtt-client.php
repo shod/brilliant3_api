@@ -115,4 +115,6 @@ return [
 
     ],
 
+    'event_topic' => env('MQTT_EVENT_TOPIC'),
+
 ];

@@ -41,7 +41,10 @@ class TestMqttCommand extends Command
 
         /** @var \PhpMqtt\Client\Contracts\MqttClient $mqtt */
         $mqtt = MQTT::connection();
-        $mqtt->subscribe('Event/Navi/RSSI', function (string $topic, string $message) {
+
+        //*'Event/Navi/RSSI'
+        dd(config('mqtt-client.event_topic'));
+        $mqtt->subscribe(config('mqtt-client.event_topic'), function (string $topic, string $message) {
             //echo sprintf('Received QoS level 1 message on topic [%s]: %s', $topic, $message);    
             $this->info('Event');
             dispatch(new ProcessEvent($message));
