@@ -68,7 +68,7 @@ class DeviceService
     *Получаем дату менше 10 минут от текущей
     */
     date_default_timezone_set('Europe/Minsk');
-    $min_period = time() - 600;
+    $min_period = time() - 1200;
     $rkey = RedisService::keyEncode(RedisService::KEY_EVENT, [$device->name, '*']);
 
     $events = Redis::keys($rkey);
@@ -88,11 +88,7 @@ class DeviceService
 
     $sorted = array_values(Arr::sort($points, function ($value) {
       return $value['rssi'];
-    }));
-
-    if ($debug) {
-      //var_dump($sorted);
-    }
+    }));    
 
     $points = array_slice($sorted, 0, 3);
 
@@ -102,7 +98,13 @@ class DeviceService
       $device->location->y = round($location['y']);
       $device->points = $points;
       self::historyLocationSave($device);
-    }
+    }else{
+		echo ">>>Count Points only:" . count($points);
+		echo "";
+		if ($debug) {
+		  var_dump($sorted);
+		}
+	}
 
     if ($debug) {
 

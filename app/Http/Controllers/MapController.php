@@ -21,7 +21,7 @@ class MapController extends Controller
      */
     public function index(): View
     {
-        $device_id = '34851805629e';
+        $device_id = '34851805629E';
         $data = $this->ptp_repository->getPtpById($device_id);
 
         return view('map', [

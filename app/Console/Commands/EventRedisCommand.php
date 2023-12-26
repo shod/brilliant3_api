@@ -52,13 +52,13 @@ class EventRedisCommand extends Command
 
     public function triangle()
     {
-        $key = RedisService::keyEncode(RedisService::KEY_DEVICE, ['34851825C972']);
+        $key = RedisService::keyEncode(RedisService::KEY_DEVICE, ['34851805629E']);
         $res = Redis::get($key);
 
         //$device = new Device();
         $device = json_decode($res);
         DeviceService::triangulation($device, true);
         $res = Redis::set($key, json_encode($device));
-        //dd($device);
+        dd($device);
     }
 }
